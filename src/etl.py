@@ -174,10 +174,13 @@ def load_raw_data() -> tuple[pd.DataFrame, pd.DataFrame]:
     df_comercios = _normalize_column_names(df_comercios)
     df_transacciones = _normalize_column_names(df_transacciones)
 
-    # --- Validación de duplicados en clave primaria ---
+    # --- Validación de terminales múltiples por comercio ---
+    # Los duplicados en id_comercio son esperados: un comercio puede tener
+    # varios terminales (datafónos). Se consolidan en consolidate_comercios().
     dup_comercios = df_comercios["id_comercio"].duplicated().sum()
     if dup_comercios > 0:
-        print(f"  [WARN] {dup_comercios} filas duplicadas en id_comercio (comercios).")
+        print(f"  [INFO] {dup_comercios} filas con id_comercio repetido "
+              f"(múltiples terminales por comercio — se consolidarán).")
 
     dup_trans = df_transacciones.duplicated(
         subset=["id_comercio", "mes_anio_transaccion"]
@@ -200,20 +203,25 @@ def load_raw_data() -> tuple[pd.DataFrame, pd.DataFrame]:
 
 
 def clean_comercios(df: pd.DataFrame) -> pd.DataFrame:
-    """Limpia y normaliza el DataFrame de comercios.
+    """Limpia y normaliza el DataFrame de comercios sin eliminar filas.
+
+    Los registros duplicados por ``id_comercio`` representan múltiples
+    terminales asociados al mismo comercio y **no deben eliminarse**.
+    La consolidación se realiza en :func:`consolidate_comercios`.
 
     Operaciones aplicadas:
+
     - Parseo de columnas de fecha en formato español a ``datetime``.
     - Conversión de montos colombianos (``"6.542.000"``) a ``float``.
-    - Normalización de ciudades: strip de espacios múltiples.
-    - Eliminación de duplicados por ``id_comercio`` (mantiene primer registro).
+    - Normalización de ciudades y categorías: strip y espacios múltiples.
     - Selección de columnas relevantes para el análisis.
 
     Args:
         df: DataFrame crudo de comercios con columnas en snake_case.
 
     Returns:
-        DataFrame limpio y tipado listo para enriquecimiento RFM.
+        DataFrame limpio y tipado, con todas las filas originales intactas,
+        listo para ser consolidado por comercio.
     """
     print("[ETL] Limpiando comercios...")
 
@@ -247,15 +255,8 @@ def clean_comercios(df: pd.DataFrame) -> pd.DataFrame:
                 df[col]
                 .astype(str)
                 .str.strip()
-                .str.replace(r"\s+", " ", regex=True)  # Colapsar espacios múltiples
+                .str.replace(r"\s+", " ", regex=True)
             )
-
-    # --- Eliminar duplicados por id_comercio ---
-    before = len(df)
-    df = df.drop_duplicates(subset="id_comercio", keep="first").reset_index(drop=True)
-    removed = before - len(df)
-    if removed > 0:
-        print(f"  [INFO] {removed} duplicados eliminados en comercios.")
 
     # --- Selección de columnas relevantes ---
     keep_cols = [
@@ -270,14 +271,92 @@ def clean_comercios(df: pd.DataFrame) -> pd.DataFrame:
         "monto_ventas_acumulado",
         "monto_ventas_ultimo_mes",
     ]
-    # Filtrar solo las columnas que efectivamente existen
     keep_cols = [c for c in keep_cols if c in df.columns]
     df = df[keep_cols]
 
-    print(f"  [OK] Comercios limpios: {len(df):,} registros | "
-          f"{len(df.columns)} columnas retenidas")
+    n_comercios = df["id_comercio"].nunique()
+    print(f"  [OK] Comercios limpios: {len(df):,} filas | "
+          f"{n_comercios:,} comercios únicos | {len(df.columns)} columnas")
 
     return df
+
+
+def consolidate_comercios(df: pd.DataFrame) -> pd.DataFrame:
+    """Consolida múltiples terminales por comercio en una sola fila.
+
+    Un comercio puede tener varios terminales (datafónos), lo que genera
+    múltiples filas con el mismo ``id_comercio``. Esta función agrega
+    esas filas aplicando reglas de negocio específicas para producir
+    una vista única y representativa de cada comercio.
+
+    Reglas de agregación:
+
+    - ``fecha_vinculacion``, ``fecha_creacion``, ``fecha_primera_transaccion``:
+      se toma la fecha **mínima** (más antigua).
+    - ``monto_ventas_acumulado``, ``monto_ventas_ultimo_mes``:
+      se **suman** todos los terminales del comercio.
+    - ``id_terminal``: lista de terminales únicos asociados.
+    - ``n_terminals``: cantidad de terminales únicos.
+    - ``categoria_comercio``, ``sub_categoria_comercio``, ``ciudad``:
+      se toma la **moda** (valor más frecuente).
+    - ``duplicated_flag``: ``True`` si el comercio tiene más de un terminal.
+    - ``registros_origen``: lista de índices del DataFrame original
+      (para trazabilidad y auditoría).
+
+    Args:
+        df: DataFrame limpio de comercios, con todas las filas originales
+            (salida de :func:`clean_comercios`).
+
+    Returns:
+        DataFrame con una fila por ``id_comercio``, enriquecido con
+        columnas de auditoría y listo para el cálculo RFM.
+    """
+    print("[ETL] Consolidando terminales por comercio...")
+
+    def _mode_or_first(series: pd.Series):
+        """Retorna la moda; si hay empate o la serie está vacía, retorna el primero."""
+        moda = series.mode()
+        return moda.iloc[0] if not moda.empty else series.iloc[0]
+
+    # Columnas de fecha disponibles para aplicar min
+    date_cols = [c for c in ["fecha_vinculacion", "fecha_creacion",
+                              "fecha_primera_transaccion"] if c in df.columns]
+
+    # Columnas de monto disponibles para sumar
+    amount_cols = [c for c in ["monto_ventas_acumulado",
+                                "monto_ventas_ultimo_mes"] if c in df.columns]
+
+    # Columnas categóricas para moda
+    cat_cols = [c for c in ["categoria_comercio", "sub_categoria_comercio",
+                             "ciudad"] if c in df.columns]
+
+    agg: dict = {}
+
+    for col in date_cols:
+        agg[col] = "min"
+
+    for col in amount_cols:
+        agg[col] = "sum"
+
+    for col in cat_cols:
+        agg[col] = _mode_or_first
+
+    # Columnas de trazabilidad calculadas por separado con named aggregation
+    terminal_agg = df.groupby("id_comercio").agg(
+        **{col: (col, func) for col, func in agg.items()},
+        id_terminals=("id_terminal", lambda x: list(x.dropna().unique())),
+        n_terminals=("id_terminal", "nunique"),
+        registros_origen=("id_terminal", lambda x: list(x.index)),
+    ).reset_index()
+
+    terminal_agg["duplicated_flag"] = terminal_agg["n_terminals"] > 1
+
+    n_multi = terminal_agg["duplicated_flag"].sum()
+    print(f"  [OK] Consolidados: {len(terminal_agg):,} comercios únicos")
+    print(f"       Con múltiples terminales: {n_multi:,} "
+          f"({n_multi / len(terminal_agg) * 100:.1f}%)")
+
+    return terminal_agg
 
 
 def clean_transacciones(df: pd.DataFrame) -> pd.DataFrame:
@@ -342,21 +421,27 @@ def generate_rfm(
 ) -> pd.DataFrame:
     """Calcula métricas RFM y KPIs bancarios a nivel de comercio.
 
+    Requiere que ``df_comercios`` sea la salida de
+    :func:`consolidate_comercios`, donde ``monto_ventas_acumulado`` ya
+    refleja la **suma de todos los terminales** del comercio.
+
     Métricas generadas:
 
-    - **Recencia**: Días transcurridos desde la última transacción del
-      comercio hasta la fecha máxima del dataset. Valores bajos indican
-      mayor actividad reciente.
-    - **Frecuencia**: Número total de transacciones en los últimos 6 meses.
-    - **Monetary**: Monto acumulado de ventas del comercio (proxy monetario,
+    - **Recencia** (R): Días desde la última transacción del comercio hasta
+      la fecha de corte del análisis (``max(df_transacciones.fecha_transaccion)``).
+      **No usa la fecha actual del sistema.** Valores más bajos = mayor actividad reciente.
+    - **Frecuencia** (F): Total de transacciones del comercio en la ventana
+      analizada (últimos 6 meses).
+    - **Monetary** (M): Monto acumulado de ventas consolidado de todos los
+      terminales del comercio (fuente: ``monto_ventas_acumulado`` de comercios,
       ya que el dataset de transacciones no incluye montos por registro).
-    - **Ticket Promedio**: ``Monetary / Frecuencia``.
-    - **Comisión Generada**: ``Monetary * 0.05`` (tasa de comisión API Pragma).
-    - **Promedio Mensual**: ``Frecuencia / meses_activos``.
+    - **Ticket_Avg**: ``Monetary / Frecuencia``.
+    - **Comisión**: ``Monetary * 0.05`` (tasa de comisión API Pragma).
+    - **Actividad_mensual_promedio**: Promedio de transacciones por mes activo.
 
     Args:
-        df_comercios: DataFrame limpio de comercios (debe contener
-            ``id_comercio`` y ``monto_ventas_acumulado``).
+        df_comercios: DataFrame consolidado de comercios — una fila por
+            ``id_comercio`` (salida de :func:`consolidate_comercios`).
         df_transacciones: DataFrame limpio de transacciones con columnas
             ``id_comercio``, ``fecha_transaccion`` y ``cantidad_transacciones``.
 
@@ -417,7 +502,7 @@ def generate_rfm(
     )
     df_rfm["comision_generada"] = df_rfm["monetary"] * _COMMISSION_RATE
 
-    df_rfm["promedio_transacciones_mensual"] = np.where(
+    df_rfm["actividad_mensual_promedio"] = np.where(
         df_rfm["meses_activos"] > 0,
         df_rfm["frecuencia"] / df_rfm["meses_activos"],
         np.nan,
@@ -425,7 +510,7 @@ def generate_rfm(
 
     # --- Redondear métricas monetarias ---
     for col in ["monetary", "ticket_promedio", "comision_generada",
-                "promedio_transacciones_mensual"]:
+                "actividad_mensual_promedio"]:
         if col in df_rfm.columns:
             df_rfm[col] = df_rfm[col].round(2)
 
@@ -516,9 +601,10 @@ def run_etl() -> pd.DataFrame:
     Secuencia de ejecución:
     1. Carga de datos crudos.
     2. Limpieza de comercios y transacciones.
-    3. Cálculo de métricas RFM.
-    4. Consolidación de datasets.
-    5. Exportación del archivo procesado.
+    3. Consolidación de terminales por comercio.
+    4. Cálculo de métricas RFM.
+    5. Unión de datasets comercios + RFM.
+    6. Exportación del archivo procesado.
 
     Returns:
         DataFrame final exportado (para uso interactivo o en notebooks).
@@ -531,16 +617,19 @@ def run_etl() -> pd.DataFrame:
     df_comercios_raw, df_transacciones_raw = load_raw_data()
 
     # 2. Limpieza
-    df_comercios = clean_comercios(df_comercios_raw)
+    df_comercios_clean = clean_comercios(df_comercios_raw)
     df_transacciones = clean_transacciones(df_transacciones_raw)
 
-    # 3. RFM
+    # 3. Consolidar múltiples terminales → una fila por comercio
+    df_comercios = consolidate_comercios(df_comercios_clean)
+
+    # 4. RFM
     df_rfm = generate_rfm(df_comercios, df_transacciones)
 
-    # 4. Consolidación
+    # 5. Unión
     df_final = merge_datasets(df_comercios, df_rfm)
 
-    # 5. Exportación
+    # 6. Exportación
     export_processed(df_final)
 
     print("=" * 60)
