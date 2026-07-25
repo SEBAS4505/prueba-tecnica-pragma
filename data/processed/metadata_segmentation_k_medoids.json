@@ -1,0 +1,78 @@
+{
+  "experiment": {
+    "timestamp": "2026-07-25T17:24:52.151405",
+    "notebook": "segmentation_evaluation_k_medoids.ipynb",
+    "suffix": "_k_medoids",
+    "backend": "pyclustering"
+  },
+  "data": {
+    "source": "comercios_segmented_prep.csv",
+    "n_comercios": 3015,
+    "n_features_set_a": 3,
+    "n_features_set_b": 5,
+    "active_feature_set": "A",
+    "features_used": [
+      "recency_days",
+      "frequency",
+      "monetary"
+    ]
+  },
+  "preprocessing": {
+    "log_transform": true,
+    "log_transform_applied_to": [
+      "monetary",
+      "frequency"
+    ],
+    "log_transform_not_applied_to": [
+      "recency_days"
+    ],
+    "scaler": "standard",
+    "skew_threshold": 1.0,
+    "outliers_top_01pct": "mantenidos_en_muestra"
+  },
+  "model": {
+    "algorithm": "K-Medoids (PAM)",
+    "k_evaluated": [
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "k_selected": 4,
+    "k2_discarded_reason": "solucion_trivial_no_accionable",
+    "metric": "euclidean",
+    "method": "pam",
+    "random_state": 42,
+    "silhouette_final": 0.4185,
+    "davies_bouldin_final": 0.8397,
+    "cost_final": 1977.72
+  },
+  "stability": {
+    "n_runs": 20,
+    "ari_mean": 0.7819,
+    "ari_std": 0.2219,
+    "ari_min": 0.3995,
+    "ari_max": 1.0
+  },
+  "outputs": {
+    "model": "..\\data\\processed\\model_k_medoids.pkl",
+    "scaler": "..\\data\\processed\\scaler_k_medoids.pkl",
+    "dataset_final": "..\\data\\processed\\comercios_final_k_medoids.csv",
+    "perfiles": "..\\data\\processed\\perfiles_segmentos_k_medoids.csv"
+  },
+  "segments": {
+    "0": "En Riesgo / Churn",
+    "1": "Core / Crecimiento",
+    "2": "Champions / VIP",
+    "3": "Alto Volumen / Bajo Ticket"
+  },
+  "medoids": {
+    "0": "024EE2F9LX",
+    "1": "UYVI35Y0U8",
+    "2": "AYFNNEAF05",
+    "3": "S5ES7EDM97"
+  }
+}
