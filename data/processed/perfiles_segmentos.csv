@@ -1,3 +1,0 @@
-cluster,n_comercios,recency_days_mean,recency_days_median,frequency_mean,frequency_median,monetary_mean,monetary_median,ticket_avg_mean,commission_sum,commission_mean,n_terminals_mean,active_months_mean,pct_comercios,pct_commission,gap_to_meta_cop,churn_signal_pct,api_adoption_proxy
-0,626,64.96,61.0,2.17,1.0,53770.94,2000.0,22139.61,1683030.5,2688.55,1.01,1.24,20.8,0.3,992299.0,81.3,0.89
-1,2389,6.59,0.0,27.96,14.0,5524064.35,2571000.0,306785.37,659849486.1,276203.22,1.02,3.17,79.2,99.7,329773960.0,5.1,0.36
