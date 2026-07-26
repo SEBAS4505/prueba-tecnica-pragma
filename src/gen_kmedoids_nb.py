@@ -1165,8 +1165,7 @@ notebook = {
 }
 
 OUT = Path(
-    r"c:\Users\johan\OneDrive\Documentos\prueba-tecnica-pragma\notebooks"
-    r"\segmentation_evaluation_k_medoids.ipynb"
+    r"/notebooks/segmentation_evaluation_k_medoids.ipynb"
 )
 with open(OUT, "w", encoding="utf-8") as f:
     json.dump(notebook, f, indent=1, ensure_ascii=False)
