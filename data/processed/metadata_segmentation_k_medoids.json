@@ -1,6 +1,6 @@
 {
   "experiment": {
-    "timestamp": "2026-07-25T18:22:04.638206",
+    "timestamp": "2026-07-26T07:39:04.396772",
     "notebook": "segmentation_evaluation_k_medoids.ipynb",
     "suffix": "_k_medoids",
     "backend": "pyclustering"
@@ -26,8 +26,8 @@
     "log_transform_not_applied_to": [
       "recency_days"
     ],
-    "scaler": "standard",
-    "skew_threshold": 1.0,
+    "scaler": "robust",
+    "skew_threshold": 3.0,
     "outliers_top_01pct": "mantenidos_en_muestra"
   },
   "model": {
@@ -46,15 +46,15 @@
     "metric": "euclidean",
     "method": "pam",
     "random_state": 42,
-    "silhouette_final": 0.4185,
-    "davies_bouldin_final": 0.8397,
-    "cost_final": 1977.72
+    "silhouette_final": 0.3994,
+    "davies_bouldin_final": 0.8947,
+    "cost_final": 1870.3
   },
   "stability": {
     "n_runs": 20,
-    "ari_mean": 0.7819,
-    "ari_std": 0.2219,
-    "ari_min": 0.3995,
+    "ari_mean": 0.9061,
+    "ari_std": 0.176,
+    "ari_min": 0.3582,
     "ari_max": 1.0
   },
   "outputs": {
@@ -64,15 +64,15 @@
     "perfiles": "..\\data\\processed\\perfiles_segmentos_k_medoids.csv"
   },
   "segments": {
-    "0": "En Riesgo / Churn",
-    "1": "Core / Crecimiento",
+    "0": "Core / Crecimiento",
+    "1": "En Riesgo / Churn",
     "2": "Champions / VIP",
-    "3": "Alto Volumen / Bajo Ticket"
+    "3": "Ocasional / Ticket Alto"
   },
   "medoids": {
-    "0": "024EE2F9LX",
-    "1": "UYVI35Y0U8",
-    "2": "AYFNNEAF05",
-    "3": "S5ES7EDM97"
+    "0": "I06YDZ157S",
+    "1": "0773NFXBJD",
+    "2": "96FVKJJ572",
+    "3": "JR7DNNZ0D0"
   }
 }
