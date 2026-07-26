@@ -1,6 +1,6 @@
 {
   "experiment": {
-    "timestamp": "2026-07-25T17:24:52.151405",
+    "timestamp": "2026-07-25T18:22:04.638206",
     "notebook": "segmentation_evaluation_k_medoids.ipynb",
     "suffix": "_k_medoids",
     "backend": "pyclustering"
