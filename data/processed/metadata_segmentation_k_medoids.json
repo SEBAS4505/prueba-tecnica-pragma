@@ -1,6 +1,6 @@
 {
   "experiment": {
-    "timestamp": "2026-07-26T07:39:04.396772",
+    "timestamp": "2026-07-26T14:44:01.659686",
     "notebook": "segmentation_evaluation_k_medoids.ipynb",
     "suffix": "_k_medoids",
     "backend": "pyclustering"
@@ -62,6 +62,73 @@
     "scaler": "..\\data\\processed\\scaler_k_medoids.pkl",
     "dataset_final": "..\\data\\processed\\comercios_final_k_medoids.csv",
     "perfiles": "..\\data\\processed\\perfiles_segmentos_k_medoids.csv"
+  },
+  "segment_naming": {
+    "method": "rule_based_automated",
+    "rules_applied": [
+      {
+        "priority": 1,
+        "condition": "frequency_mean > P75(frequency) AND recency_days_mean < recency_threshold AND monetary_mean > P75(monetary)",
+        "name": "Champions / VIP",
+        "note": "recency_threshold = max(P25(recency), 1.0) — floor effect adjustment when P25=0"
+      },
+      {
+        "priority": 2,
+        "condition": "recency_days_mean > P75(recency_days) AND frequency_mean < P25(frequency)",
+        "name": "En Riesgo / Churn"
+      },
+      {
+        "priority": 3,
+        "condition": "frequency_mean < P50(frequency) AND ticket_avg_mean > P75(ticket_avg)",
+        "name": "Ocasional / Ticket Alto",
+        "note": "Usa P50(frequency) como umbral de 'baja frecuencia' en lugar de P25 (muy restrictivo con P25=3 tx/6m)"
+      },
+      {
+        "priority": 4,
+        "condition": "catch-all (ninguna regla anterior)",
+        "name": "Core / Crecimiento"
+      }
+    ],
+    "global_percentiles": {
+      "recency_days": {
+        "P25": 0.0,
+        "P50": 0.0,
+        "P75": 30.0
+      },
+      "frequency": {
+        "P25": 3.0,
+        "P50": 10.0,
+        "P75": 23.0
+      },
+      "monetary": {
+        "P25": 325700.0,
+        "P50": 1554000.0,
+        "P75": 4976200.0
+      },
+      "ticket_avg": {
+        "P25": 39802.245,
+        "P50": 120727.27,
+        "P75": 301230.715
+      }
+    },
+    "cluster_assignments": {
+      "0": {
+        "segmento": "Core / Crecimiento",
+        "regla_activada": "R4: Core/Crecimiento (catch-all)"
+      },
+      "1": {
+        "segmento": "En Riesgo / Churn",
+        "regla_activada": "R2: En Riesgo/Churn"
+      },
+      "2": {
+        "segmento": "Champions / VIP",
+        "regla_activada": "R1: Champions/VIP (rec_threshold=1.0)"
+      },
+      "3": {
+        "segmento": "Ocasional / Ticket Alto",
+        "regla_activada": "R3: Ocasional/Ticket Alto (freq_threshold=P50=10.0)"
+      }
+    }
   },
   "segments": {
     "0": "Core / Crecimiento",
