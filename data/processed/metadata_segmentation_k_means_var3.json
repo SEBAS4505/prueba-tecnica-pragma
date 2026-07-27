@@ -1,0 +1,43 @@
+{
+  "generated_at": "2026-07-25T15:18:43.273687",
+  "date_cutoff": "2021-05-01",
+  "source_file": "comercios_segmented_prep.csv",
+  "n_comercios": 3015,
+  "K_selected": 2,
+  "random_state": 42,
+  "scale_method": "robust",
+  "inertia": 3050.7212,
+  "silhouette": 0.6261,
+  "transform_info": {
+    "features_used": [
+      "recency_days",
+      "frequency",
+      "monetary"
+    ],
+    "log_transformed": [
+      "frequency",
+      "monetary"
+    ],
+    "skewness_original": {
+      "recency_days": 1.825,
+      "frequency": 6.347,
+      "monetary": 4.288
+    },
+    "skewness_after": {
+      "recency_days": 1.825,
+      "frequency": 0.402,
+      "monetary": -1.324
+    },
+    "log_transform_enabled": true,
+    "skew_threshold": 3.0
+  },
+  "cluster_sizes": {
+    "0": 684,
+    "1": 2331
+  },
+  "kpis_globales": {
+    "commission_total_cop": 661532516.6,
+    "commission_meta_50pct": 992298774.9,
+    "gap_cop": 330766258.3
+  }
+}
