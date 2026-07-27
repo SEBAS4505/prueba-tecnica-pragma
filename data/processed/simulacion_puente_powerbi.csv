@@ -1,0 +1,19 @@
+escenario,pilar_estrategico,componente,fase_ejecucion,comercios_objetivo,kpi_meta_operativa,comision_base_cop,delta_incremental_cop,pct_contribucion_gap,comision_proyectada_total_cop,gap_absoluto_global_cop
+Conservador,1. Cartera Actual,VIP - Blindaje,Fase 1: Blindaje (Jun-Ago 2021),1076,+10% uplift en comision / GMV,551416717.05,55141671.7,0.1667,606558388.76,330766258.3
+Conservador,1. Cartera Actual,En Riesgo - Retencion,Fase 1: Retencion (Jun-Ago 2021),407,Retener 5% de comision en riesgo,117410.0,5870.5,0.0,123280.5,330766258.3
+Conservador,1. Cartera Actual,Core - Expansion,Fase 2: Expansion (Sep-Nov 2021),1169,+10% uplift en comision / GMV,91367952.4,9136795.24,0.0276,100504747.64,330766258.3
+Conservador,1. Cartera Actual,Ocasional - Reactivacion / Ticket Alto,Fase 2: Reactivacion (Sep-Nov 2021),363,+0% uplift en comision / GMV,18630437.15,0.0,0.0,18630437.15,330766258.3
+Conservador,2. Adquisicion Neta,Captacion Neta Look-Alike VIP,Fase 1 y 2: Captacion (Jun-Dic 2021),260,Vincular 260 comercios Look-Alike Champions (~37/mes),0.0,133240960.43,0.4028,133240960.43,330766258.3
+Conservador,2. Adquisicion Neta,Captacion Neta Look-Alike Core,Fase 1 y 2: Captacion (Jun-Dic 2021),1705,Vincular 1705 comercios Look-Alike Core (~244/mes),0.0,133240960.43,0.4028,133240960.43,330766258.3
+Intermedio,1. Cartera Actual,VIP - Blindaje,Fase 1: Blindaje (Jun-Ago 2021),1076,+15% uplift en comision / GMV,551416717.05,82712507.56,0.2501,634129224.61,330766258.3
+Intermedio,1. Cartera Actual,En Riesgo - Retencion,Fase 1: Retencion (Jun-Ago 2021),407,Retener 10% de comision en riesgo,117410.0,11741.0,0.0,129151.0,330766258.3
+Intermedio,1. Cartera Actual,Core - Expansion,Fase 2: Expansion (Sep-Nov 2021),1169,+20% uplift en comision / GMV,91367952.4,18273590.48,0.0552,109641542.88,330766258.3
+Intermedio,1. Cartera Actual,Ocasional - Reactivacion / Ticket Alto,Fase 2: Reactivacion (Sep-Nov 2021),363,+5% uplift en comision / GMV,18630437.15,931521.86,0.0028,19561959.01,330766258.3
+Intermedio,2. Adquisicion Neta,Captacion Neta Look-Alike VIP,Fase 1 y 2: Captacion (Jun-Dic 2021),223,Vincular 223 comercios Look-Alike Champions (~32/mes),0.0,114418448.7,0.3459,114418448.7,330766258.3
+Intermedio,2. Adquisicion Neta,Captacion Neta Look-Alike Core,Fase 1 y 2: Captacion (Jun-Dic 2021),1464,Vincular 1464 comercios Look-Alike Core (~209/mes),0.0,114418448.7,0.3459,114418448.7,330766258.3
+Acelerado,1. Cartera Actual,VIP - Blindaje,Fase 1: Blindaje (Jun-Ago 2021),1076,+25% uplift en comision / GMV,551416717.05,137854179.26,0.4168,689270896.31,330766258.3
+Acelerado,1. Cartera Actual,En Riesgo - Retencion,Fase 1: Retencion (Jun-Ago 2021),407,Retener 20% de comision en riesgo,117410.0,23482.0,0.0001,140892.0,330766258.3
+Acelerado,1. Cartera Actual,Core - Expansion,Fase 2: Expansion (Sep-Nov 2021),1169,+30% uplift en comision / GMV,91367952.4,27410385.72,0.0829,118778338.12,330766258.3
+Acelerado,1. Cartera Actual,Ocasional - Reactivacion / Ticket Alto,Fase 2: Reactivacion (Sep-Nov 2021),363,+10% uplift en comision / GMV,18630437.15,1863043.72,0.0056,20493480.86,330766258.3
+Acelerado,2. Adquisicion Neta,Captacion Neta Look-Alike VIP,Fase 1 y 2: Captacion (Jun-Dic 2021),160,Vincular 160 comercios Look-Alike Champions (~23/mes),0.0,81807583.8,0.2473,81807583.8,330766258.3
+Acelerado,2. Adquisicion Neta,Captacion Neta Look-Alike Core,Fase 1 y 2: Captacion (Jun-Dic 2021),1047,Vincular 1047 comercios Look-Alike Core (~150/mes),0.0,81807583.8,0.2473,81807583.8,330766258.3
