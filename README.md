@@ -1,4 +1,4 @@
-# Prueba Técnica — Analista de Datos Pragma
+# Prueba Técnica — Analista de Datos
 
 Proyecto de análisis de datos con segmentación de comercios para banca digital, forecasting de TCRM y simulación financiera.
 
